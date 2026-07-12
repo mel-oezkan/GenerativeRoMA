@@ -103,8 +103,11 @@ def precompute_pair_cache(
     "other" (conditioning image B). All requested features go into one file
     (desc requests write the .desc sidecar, see cache_file).
     """
+    #! used for the roma probe?!
     cache_dir = Path(cache_dir)
     cache_dir.mkdir(parents=True, exist_ok=True)
+    
+    # iter over pairs
     for n, p in enumerate(pairs):
         out = cache_file(cache_dir, p["key"], features[0])
         if out.exists():
@@ -112,9 +115,11 @@ def precompute_pair_cache(
         img_A = img_to_tensor01(Image.open(p["anchor"]), size).to(device)
         img_B = img_to_tensor01(Image.open(p["other"]), size).to(device)
         feats = extractor.extract(img_A, img_B)
+
         payload = {k: feats[k][0].half().cpu() for k in features}
         payload["anchor"] = str(p["anchor"])
         torch.save(payload, out)
+       
         if n % 50 == 0:
             print(f"  cached {n}/{len(pairs)}", flush=True)
 

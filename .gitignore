@@ -17,3 +17,6 @@ outputs/
 
 # Misc
 .DS_Store
+
+# Logs
+*.log
