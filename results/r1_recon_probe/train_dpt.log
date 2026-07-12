@@ -1,0 +1,73 @@
+/visinf/home/lab_mozkan/miniconda3/envs/cv/lib/python3.10/site-packages/torchvision/models/_utils.py:208: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/visinf/home/lab_mozkan/miniconda3/envs/cv/lib/python3.10/site-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=AlexNet_Weights.IMAGENET1K_V1`. You can also use `weights=AlexNet_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+/visinf/home/lab_mozkan/miniconda3/envs/cv/lib/python3.10/site-packages/lpips/lpips.py:107: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  self.load_state_dict(torch.load(model_path, map_location='cpu'), strict=False)
+/visinf/home/lab_mozkan/GenerativeRoMA/src/romav2_utils.py:122: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  d = torch.load(self.files[i], map_location="cpu")
+Setting up [LPIPS] perceptual loss: trunk [alex], v[0.1], spatial [off]
+Loading model from: /visinf/home/lab_mozkan/miniconda3/envs/cv/lib/python3.10/site-packages/lpips/weights/v0.1/alex.pth
+[dpt] step 0 l1 0.6297 lpips 0.9320
+[dpt] step 100 l1 0.1749 lpips 0.7405
+[dpt] step 200 l1 0.1817 lpips 0.6538
+[dpt] step 300 l1 0.1914 lpips 0.5942
+[dpt] step 400 l1 0.1951 lpips 0.5910
+[dpt] step 500 l1 0.1734 lpips 0.6055
+[dpt] step 600 l1 0.1837 lpips 0.6709
+[dpt] step 700 l1 0.1886 lpips 0.5798
+[dpt] step 800 l1 0.1920 lpips 0.5863
+[dpt] step 900 l1 0.1903 lpips 0.5849
+[dpt] step 1000 l1 0.2228 lpips 0.6414
+[dpt] step 1100 l1 0.1916 lpips 0.5291
+[dpt] step 1200 l1 0.2151 lpips 0.5401
+[dpt] step 1300 l1 0.1346 lpips 0.4457
+[dpt] step 1400 l1 0.1889 lpips 0.5289
+[dpt] step 1500 l1 0.1398 lpips 0.5096
+[dpt] step 1600 l1 0.1943 lpips 0.5969
+[dpt] step 1700 l1 0.2007 lpips 0.5766
+[dpt] step 1800 l1 0.1940 lpips 0.5451
+[dpt] step 1900 l1 0.1799 lpips 0.5201
+[dpt] step 2000 l1 0.1794 lpips 0.5328
+[dpt] step 2100 l1 0.2166 lpips 0.5403
+[dpt] step 2200 l1 0.1573 lpips 0.4895
+[dpt] step 2300 l1 0.1857 lpips 0.5598
+[dpt] step 2400 l1 0.1846 lpips 0.5379
+[dpt] step 2500 l1 0.1733 lpips 0.4773
+[dpt] step 2600 l1 0.1364 lpips 0.4101
+[dpt] step 2700 l1 0.1622 lpips 0.5589
+[dpt] step 2800 l1 0.1681 lpips 0.4965
+[dpt] step 2900 l1 0.1587 lpips 0.5263
+[dpt] step 3000 l1 0.1664 lpips 0.4787
+[dpt] step 3100 l1 0.1688 lpips 0.5031
+[dpt] step 3200 l1 0.1362 lpips 0.4333
+[dpt] step 3300 l1 0.1792 lpips 0.4954
+[dpt] step 3400 l1 0.1713 lpips 0.5278
+[dpt] step 3500 l1 0.1577 lpips 0.5265
+[dpt] step 3600 l1 0.1566 lpips 0.4871
+[dpt] step 3700 l1 0.1433 lpips 0.4664
+[dpt] step 3800 l1 0.1348 lpips 0.5035
+[dpt] step 3900 l1 0.1426 lpips 0.5058
+[dpt] step 4000 l1 0.1410 lpips 0.4754
+[dpt] step 4100 l1 0.1030 lpips 0.3927
+[dpt] step 4200 l1 0.1447 lpips 0.4773
+[dpt] step 4300 l1 0.1362 lpips 0.4661
+[dpt] step 4400 l1 0.1479 lpips 0.5015
+[dpt] step 4500 l1 0.1281 lpips 0.3959
+[dpt] step 4600 l1 0.1637 lpips 0.5001
+[dpt] step 4700 l1 0.1198 lpips 0.4831
+[dpt] step 4800 l1 0.1420 lpips 0.4925
+[dpt] step 4900 l1 0.1236 lpips 0.4253
+[dpt] step 5000 l1 0.1402 lpips 0.4769
+[dpt] step 5100 l1 0.1384 lpips 0.4636
+[dpt] step 5200 l1 0.1258 lpips 0.4041
+[dpt] step 5300 l1 0.1423 lpips 0.5207
+[dpt] step 5400 l1 0.1467 lpips 0.4998
+[dpt] step 5500 l1 0.1371 lpips 0.4835
+[dpt] step 5600 l1 0.1476 lpips 0.4827
+[dpt] step 5700 l1 0.1263 lpips 0.5024
+[dpt] step 5800 l1 0.1241 lpips 0.4906
+[dpt] step 5900 l1 0.1398 lpips 0.4930
+[dpt] eval: {'psnr': 12.485970160850467, 'ssim': 0.300218018297913, 'lpips': 0.5364339389734798}
+/visinf/home/lab_mozkan/GenerativeRoMA/src/romav2_utils.py:122: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  d = torch.load(self.files[i], map_location="cpu")

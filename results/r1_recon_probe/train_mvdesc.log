@@ -1,0 +1,43 @@
+/visinf/home/lab_mozkan/miniconda3/envs/cv/lib/python3.10/site-packages/torchvision/models/_utils.py:208: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/visinf/home/lab_mozkan/miniconda3/envs/cv/lib/python3.10/site-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=AlexNet_Weights.IMAGENET1K_V1`. You can also use `weights=AlexNet_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+/visinf/home/lab_mozkan/miniconda3/envs/cv/lib/python3.10/site-packages/lpips/lpips.py:107: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  self.load_state_dict(torch.load(model_path, map_location='cpu'), strict=False)
+/visinf/home/lab_mozkan/GenerativeRoMA/src/romav2_utils.py:143: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  d = torch.load(self.files[i], map_location="cpu")
+/visinf/home/lab_mozkan/GenerativeRoMA/src/romav2_utils.py:146: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  desc = torch.load(self.desc_files[i], map_location="cpu")["desc"]
+Setting up [LPIPS] perceptual loss: trunk [alex], v[0.1], spatial [off]
+Loading model from: /visinf/home/lab_mozkan/miniconda3/envs/cv/lib/python3.10/site-packages/lpips/weights/v0.1/alex.pth
+[mvdesc] step 0 l1 0.6504 lpips 0.9293
+[mvdesc] step 100 l1 0.1112 lpips 0.7255
+[mvdesc] step 200 l1 0.1152 lpips 0.6376
+[mvdesc] step 300 l1 0.0989 lpips 0.6034
+[mvdesc] step 400 l1 0.0842 lpips 0.5063
+[mvdesc] step 500 l1 0.0724 lpips 0.5270
+[mvdesc] step 600 l1 0.0670 lpips 0.4264
+[mvdesc] step 700 l1 0.0680 lpips 0.4286
+[mvdesc] step 800 l1 0.0644 lpips 0.4051
+[mvdesc] step 900 l1 0.0617 lpips 0.3850
+[mvdesc] step 1000 l1 0.0658 lpips 0.2971
+[mvdesc] step 1100 l1 0.0774 lpips 0.3331
+[mvdesc] step 1200 l1 0.0657 lpips 0.3202
+[mvdesc] step 1300 l1 0.0503 lpips 0.2612
+[mvdesc] step 1400 l1 0.0602 lpips 0.3038
+[mvdesc] step 1500 l1 0.0531 lpips 0.2826
+[mvdesc] step 1600 l1 0.0531 lpips 0.1835
+[mvdesc] step 1700 l1 0.0600 lpips 0.2411
+[mvdesc] step 1800 l1 0.0644 lpips 0.2388
+[mvdesc] step 1900 l1 0.0553 lpips 0.2018
+[mvdesc] step 2000 l1 0.0598 lpips 0.2024
+[mvdesc] step 2100 l1 0.0475 lpips 0.1976
+[mvdesc] step 2200 l1 0.0554 lpips 0.1668
+[mvdesc] step 2300 l1 0.0646 lpips 0.2176
+[mvdesc] step 2400 l1 0.0546 lpips 0.1912
+[mvdesc] step 2500 l1 0.0462 lpips 0.1844
+[mvdesc] step 2600 l1 0.0343 lpips 0.1458
+[mvdesc] step 2700 l1 0.0478 lpips 0.1593
+[mvdesc] step 2800 l1 0.0376 lpips 0.1245
+[mvdesc] step 2900 l1 0.0504 lpips 0.1581
+[mvdesc] step 3000 l1 0.0562 lpips 0.1655

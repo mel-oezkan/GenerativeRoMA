@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "experiments/r1_recon_probe.py",
+    "--feature",
+    "desc"
+  ],
+  "git": "857d0b3",
+  "date": "2026-07-08 16:18:23",
+  "config": {
+    "feature": "desc",
+    "size": 320,
+    "steps": 6000,
+    "batch": 8,
+    "lr": 0.0002,
+    "lpips_w": 0.1,
+    "seed": 0,
+    "n_train_pairs": 1379,
+    "n_eval_pairs": 180
+  }
+}

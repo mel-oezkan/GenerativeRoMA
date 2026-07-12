@@ -1,0 +1,38 @@
+('dpt', 'mv'): 1559 pairs total, 0 to cache
+('desc',): 1559 pairs total, 1559 to cache
+Using cache found in /visinf/home/lab_mozkan/.cache/torch/hub/facebookresearch_dinov3_adc254450203739c8149213a7a69d8d905b4fcfa
+2026-07-08 15:55:28 INFO     romav2.romav2 - romav2:117 in __init__ - RoMa v2   
+                             initialized.                                       
+  cached 0/1559
+  cached 50/1559
+  cached 100/1559
+  cached 150/1559
+  cached 200/1559
+  cached 250/1559
+  cached 300/1559
+  cached 350/1559
+  cached 400/1559
+  cached 450/1559
+  cached 500/1559
+  cached 550/1559
+  cached 600/1559
+  cached 650/1559
+  cached 700/1559
+  cached 750/1559
+  cached 800/1559
+  cached 850/1559
+  cached 900/1559
+  cached 950/1559
+  cached 1000/1559
+  cached 1050/1559
+  cached 1100/1559
+  cached 1150/1559
+  cached 1200/1559
+  cached 1250/1559
+  cached 1300/1559
+  cached 1350/1559
+  cached 1400/1559
+  cached 1450/1559
+  cached 1500/1559
+  cached 1550/1559
+cache complete
