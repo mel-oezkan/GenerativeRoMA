@@ -20,3 +20,7 @@ outputs/
 
 # Logs
 *.log
+
+# taming LPIPS weight cache (downloaded relative to cwd)
+taming/
+results/
