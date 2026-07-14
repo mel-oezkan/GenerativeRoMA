@@ -158,7 +158,13 @@ class DPTHead(nn.Module):
         Returns:
             Tensor or Tuple[Tensor, Tensor]: Feature maps or (predictions, confidence).
         """
-        with torch.autocast(device_type=device.type, dtype=torch.bfloat16):
+        # R2: attribute-gated so from-scratch training on Pascal (no native
+        # bf16) can run the head in fp32; default True preserves upstream.
+        with torch.autocast(
+            device_type=device.type,
+            dtype=torch.bfloat16,
+            enabled=getattr(self, "enable_amp", True),
+        ):
             assert not isinstance(aggregated_tokens_list_or_tokens, torch.Tensor), (
                 "aggregated_tokens_list_or_tokens should be a list of tensors"
             )
