@@ -15,6 +15,9 @@ depends on the paired image B. Representations exposed per pair (A, B):
   - "mvdesc": [desc ‖ mv] channel concat, [B, 3072, H/16, W/16], assembled
             at load time from the cached desc + mv (no extra precompute);
             probes the mv features' *marginal* information beyond desc
+  - "b3":   mv_vit block-3 output tokens for view A, [B, 768, H/16, W/16]
+            (mid-depth tap; the PCA visualization shows appearance still
+            alive here before the b5-b9 collapse, see r1_visualize_mvvit)
 
 amp is disabled everywhere we can control it (Pascal GPUs); the DPT head's
 internal bf16 autocast is unconditional upstream but runs fine emulated.
@@ -58,8 +61,8 @@ def img_to_tensor01(pil_img, size):
 
 
 def cache_file(cache_dir, key, feature):
-    """One .pt per pair holds dpt+mv; desc lives in a sidecar (added later)."""
-    suffix = ".desc" if feature == "desc" else ""
+    """One .pt per pair holds dpt+mv; desc/b3 live in sidecars (added later)."""
+    suffix = {"desc": ".desc", "b3": ".b3"}.get(feature, "")
     return Path(cache_dir) / f"{key}{suffix}.pt"
 
 
@@ -77,18 +80,28 @@ class RomaFeatureExtractor:
                 "mv", out["x_norm_patchtokens"].detach()
             )
         )
+        model.matcher.mv_vit.blocks[3].register_forward_hook(
+            lambda m, inp, out: self._raw.__setitem__("b3", out.detach())
+        )
 
     @torch.no_grad()
     def extract(self, img_A, img_B):
-        """img_*: [B,3,H,W] in [0,1], H/W mult. of 16 -> {"dpt","mv","desc"}."""
+        """img_*: [B,3,H,W] in [0,1], H/W mult. of 16 -> {"dpt","mv","desc","b3"}.
+
+        The two-view reshape [B, 2, h, w, -1][:, 0] assumes B == 1 for the
+        per-view token layout of odd (self-attention) blocks like b3; the
+        precompute loop extracts one pair at a time, satisfying that."""
         B, _, H, W = img_A.shape
+        assert B == 1, "b3 view unstacking is only correct for batch size 1"
         f_A = self.model.f(img_A)
         f_B = self.model.f(img_B)
         self.model.matcher(f_A, f_B, img_A=img_A, img_B=img_B, bidirectional=False)
         mv = self._raw.pop("mv").reshape(B, 2, H // 16, W // 16, -1)[:, 0]
+        b3 = self._raw.pop("b3").reshape(B, 2, H // 16, W // 16, -1)[:, 0]
         return {
             "dpt": self._raw.pop("dpt").float(),
             "mv": mv.permute(0, 3, 1, 2).contiguous().float(),
+            "b3": b3.permute(0, 3, 1, 2).contiguous().float(),
             "desc": torch.cat(f_A, dim=-1).permute(0, 3, 1, 2).contiguous().float(),
         }
 
