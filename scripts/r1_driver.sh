@@ -14,15 +14,19 @@ mkdir -p "$LOGDIR"
 CUDA_VISIBLE_DEVICES=0 $PY experiments/r1_recon_probe.py --precompute-only \
     2>&1 | tee -a "$LOGDIR/precompute.log"
 
-gpu=0
-for feat in dpt mv desc mvdesc; do
-    if [ -f "$LOGDIR/$feat/metrics.json" ]; then
-        echo "$feat already done, skipping"
-        continue
-    fi
-    CUDA_VISIBLE_DEVICES=$gpu $PY experiments/r1_recon_probe.py --feature "$feat" \
-        >> "$LOGDIR/train_$feat.log" 2>&1 &
-    gpu=$(( (gpu + 1) % 2 ))
+# probe v3 (RAE recipe, ViT-B decoder + DINO disc + VGG LPIPS) needs a full
+# 1080 Ti per arm -> two waves of one-arm-per-GPU instead of 2 per GPU
+for wave in "dpt mv" "desc mvdesc"; do
+    gpu=0
+    for feat in $wave; do
+        if [ -f "$LOGDIR/$feat/metrics.json" ]; then
+            echo "$feat already done, skipping"
+            continue
+        fi
+        CUDA_VISIBLE_DEVICES=$gpu $PY experiments/r1_recon_probe.py --feature "$feat" \
+            >> "$LOGDIR/train_$feat.log" 2>&1 &
+        gpu=$(( (gpu + 1) % 2 ))
+    done
+    wait
 done
-wait
 echo "r1 done"
