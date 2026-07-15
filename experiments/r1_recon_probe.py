@@ -77,6 +77,11 @@ SPLITS = {
              "out": "r1_recon_probe"},
     "hydrant-full": {"categories": ["hydrant"], "n_train_seqs": None,
                      "train_pairs_per_seq": 10, "out": "r1_recon_probe_hydrant"},
+    # R3 fine-tune split: hydrant FIRST so the shared-rng shuffle keeps the
+    # hydrant eval sequences identical to hydrant-full (see data.split_seqs)
+    "r3-4cat": {"categories": ["hydrant", "bench", "toybus", "toytruck"],
+                "n_train_seqs": None, "train_pairs_per_seq": 10,
+                "out": "r3_recon_probe"},
 }
 STEPS = 6000
 BATCH = 8
@@ -200,18 +205,25 @@ def save_grid(decoder, eval_ds, out_path, n=6):
     plt.close(fig)
 
 
-def train(feature, size, noise_tau, split, self_pair=False, pipeline=False):
+def train(feature, size, noise_tau, split, self_pair=False, pipeline=False,
+          cache_dir=None, out_dir=None):
     import lpips  # eval metric (alex), kept for continuity with v1/v2
     from taming.modules.losses.lpips import LPIPS as TamingLPIPS  # training loss (vgg)
 
-    arm = f"{feature}_selfpair" if self_pair else feature
-    if size != "B":  # keep the original B dirs; scale sweep gets suffixed arms
-        arm = f"{arm}_{size}"
-    out_dir = RESULTS_DIR / SPLITS[split]["out"] / arm
+    # cache_dir/out_dir overrides probe features from other frozen encoders
+    # (R2 checkpoints via r2_probe_precompute.py) with the identical recipe
+    cache_dir = Path(cache_dir) if cache_dir else CACHE_DIR
+    if out_dir is None:
+        arm = f"{feature}_selfpair" if self_pair else feature
+        if size != "B":  # keep the original B dirs; scale sweep gets suffixed arms
+            arm = f"{arm}_{size}"
+        out_dir = RESULTS_DIR / SPLITS[split]["out"] / arm
+    else:
+        out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
     train_pairs, eval_pairs = get_splits(split, self_pair)
-    train_ds = PairFeatureDataset(train_pairs, CACHE_DIR, feature, SIZE)
-    eval_ds = PairFeatureDataset(eval_pairs, CACHE_DIR, feature, SIZE)
+    train_ds = PairFeatureDataset(train_pairs, cache_dir, feature, SIZE)
+    eval_ds = PairFeatureDataset(eval_pairs, cache_dir, feature, SIZE)
 
     torch.manual_seed(SEED)
     decoder = build_decoder(feature, size, noise_tau).to(DEVICE).train()
@@ -351,7 +363,7 @@ def train(feature, size, noise_tau, split, self_pair=False, pipeline=False):
          "disc_w": DISC_W, "disc_upd_start": DISC_UPD_START,
          "gan_start": GAN_START, "ema_decay": EMA_DECAY,
          "noise_tau": noise_tau, "seed": SEED, "self_pair": self_pair,
-         "pipeline": pipeline,
+         "pipeline": pipeline, "cache_dir": str(cache_dir),
          "recipe": "RAE stage-1 (arXiv:2510.11690 C.2/Table 12); paper betas"
                    " (0.5,0.9), released configs use (0.9,0.95)",
          "n_train_pairs": len(train_pairs), "n_eval_pairs": len(eval_pairs)},
@@ -401,6 +413,11 @@ def main():
     ap.add_argument("--self-pair", action="store_true",
                     help="condition on the anchor itself (A == B) instead of"
                          " a second view; results go to <feature>_selfpair/")
+    ap.add_argument("--cache-dir", default=None,
+                    help="feature cache override (e.g. an R2 mv cache from"
+                         " r2_probe_precompute.py); default: the R1 cache")
+    ap.add_argument("--out-dir", default=None,
+                    help="results dir override; default: results/<split-out>/<arm>")
     args = ap.parse_args()
     if not DINO_S8_CKPT.exists():
         raise FileNotFoundError(f"DINO-S/8 discriminator weights missing; download {DINO_S8_URL} to {DINO_S8_CKPT}")
@@ -409,7 +426,7 @@ def main():
         return
     assert args.feature, "--feature required unless --precompute-only"
     train(args.feature, args.decoder_size, args.noise_tau, args.split,
-          args.self_pair, args.pipeline)
+          args.self_pair, args.pipeline, args.cache_dir, args.out_dir)
 
 
 if __name__ == "__main__":
