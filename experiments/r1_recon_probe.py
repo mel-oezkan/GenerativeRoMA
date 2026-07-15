@@ -237,7 +237,9 @@ def train(feature, size, noise_tau, split, self_pair=False, pipeline=False):
     ckpt_path = out_dir / "ckpt.pt"
     start = 0
     if ckpt_path.exists():
-        ckpt = torch.load(ckpt_path, map_location=DEVICE)
+        # cpu: map_location=DEVICE would pin a full extra model+EMA+opt copy
+        # on cuda:0 for the whole run (~4.8 GB for size L)
+        ckpt = torch.load(ckpt_path, map_location="cpu")
         decoder.load_state_dict(ckpt["decoder"])
         ema.load_state_dict(ckpt["ema"])
         opt.load_state_dict(ckpt["opt"])
@@ -248,6 +250,7 @@ def train(feature, size, noise_tau, split, self_pair=False, pipeline=False):
         torch.set_rng_state(ckpt["torch_rng"].cpu())
         torch.cuda.set_rng_state(ckpt["cuda_rng"].cpu())
         start = ckpt["step"]
+        del ckpt
         print(f"resumed at step {start}", flush=True)
 
     # rng replay so the batch sequence is identical across resumes
