@@ -33,10 +33,12 @@ from PIL import Image
 CO3D_ROOT = Path("/visinf/projects_students/dlcv2025_groupZ/co3d_full")
 META_CACHE_DIR = Path("/visinf/projects_students/dlcv2025_groupZ/romav2_feats/r2_meta")
 
+# diag matrix from line 8
 _FLIP = np.diag([-1.0, -1.0, 1.0]).astype(np.float32)
 
 
 def _frame_meta(e):
+    
     vp = e["viewpoint"]
     h, w = e["image"]["size"]
     R = np.asarray(vp["R"], dtype=np.float32)
@@ -51,6 +53,7 @@ def _frame_meta(e):
         raise ValueError(vp["intrinsics_format"])
     fx, fy = f * rescale
     cx, cy = np.array([w / 2, h / 2], dtype=np.float32) - pp * rescale
+
     return {
         "R_cv": _FLIP @ R.T,
         "t_cv": _FLIP @ T,
@@ -76,6 +79,19 @@ def load_frame_index(category="hydrant"):
     }
     META_CACHE_DIR.mkdir(parents=True, exist_ok=True)
     torch.save(index, cache)
+    return index
+
+
+def load_frame_index_multi(categories):
+    """Merged (sequence_name, image_filename) -> meta index over several
+    categories. CO3D sequence names are globally unique numeric triples, but
+    assert anyway — a silent collision would corrupt warp GT."""
+    index = {}
+    for cat in categories:
+        part = load_frame_index(cat)
+        dup = index.keys() & part.keys()
+        assert not dup, f"sequence/frame key collision across categories: {sorted(dup)[:3]}"
+        index.update(part)
     return index
 
 
