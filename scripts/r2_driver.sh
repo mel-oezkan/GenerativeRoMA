@@ -14,6 +14,8 @@ cd /visinf/home/lab_mozkan/GenerativeRoMA
 PY=~/miniconda3/envs/cv/bin/python
 OUT=results/r2_v0
 mkdir -p "$OUT"
+# fp32 training sits near the 11 GB ceiling; avoid fragmentation OOMs
+export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
 
 echo "[driver $(date +%H:%M)] waiting for R1 scale sweep to finish"
 while pgrep -f "r1_scale_driver.sh" > /dev/null \

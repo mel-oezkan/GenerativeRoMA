@@ -15,6 +15,7 @@ def normalize(x: torch.Tensor, dim: int):
 
 
 def cosine_similarity(f_A: torch.Tensor, f_B: torch.Tensor) -> torch.Tensor:
+    """Compute cosine sim for the NLL loss."""
     f_A = normalize(f_A, dim=-1)
     f_B = normalize(f_B, dim=-1)
     res = einsum(f_A, f_B, "B H_A W_A D, B H_B W_B D -> B H_A W_A H_B W_B")
@@ -90,6 +91,7 @@ class Matcher(nn.Module):
     def __init__(self, cfg: Cfg):
         super().__init__()
         self.cfg = cfg
+
         omega = 2 * torch.pi * torch.randn(cfg.dim // 2, 2)
         self.omega = nn.Buffer(omega)
         self.scale = nn.Buffer(torch.tensor(cfg.scale))
@@ -188,6 +190,7 @@ class Matcher(nn.Module):
                 img_B=img_A,
                 head=self.head,
             )
+            
         else:
             match_emb_BA = None
             attn_BA = None
