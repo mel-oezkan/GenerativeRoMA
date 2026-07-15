@@ -41,7 +41,8 @@ def split_seqs(categories=None, n_eval=6, n_train=12, seed=0):
         seqs = list_sequences(cat)
         rng.shuffle(seqs)
         eval_seqs[cat] = seqs[:n_eval]
-        train_seqs[cat] = seqs[n_eval:n_eval + n_train]
+        # n_train=None -> all remaining sequences (R1 hydrant-full split)
+        train_seqs[cat] = seqs[n_eval:] if n_train is None else seqs[n_eval:n_eval + n_train]
     return eval_seqs, train_seqs
 
 
