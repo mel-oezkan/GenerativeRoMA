@@ -1,0 +1,34 @@
+<table style="border-collapse:collapse; font-family:Arial,Helvetica,sans-serif; font-size:14px; color:#1a1a1a;">
+  <caption style="caption-side:top; text-align:left; font-weight:bold; padding:0 0 8px; font-size:15px;">
+    Held-out reconstruction quality (237 CO3D eval pairs, each model&rsquo;s own decoder)
+  </caption>
+  <tr>
+    <th style="padding:7px 14px; border-bottom:2px solid #ccc; text-align:left;">model</th>
+    <th style="padding:7px 14px; border-bottom:2px solid #ccc; text-align:left;">encoder</th>
+    <th style="padding:7px 14px; border-bottom:2px solid #ccc; text-align:center;">PSNR &uarr;</th>
+    <th style="padding:7px 14px; border-bottom:2px solid #ccc; text-align:center;">SSIM &uarr;</th>
+    <th style="padding:7px 14px; border-bottom:2px solid #ccc; text-align:center;">LPIPS &darr;</th>
+  </tr>
+  <tr>
+    <td style="padding:6px 14px; border-bottom:1px solid #eee;">RAE (Dino-V3)</td>
+    <td style="padding:6px 14px; border-bottom:1px solid #eee; color:#666;">frozen DINOv3 + linear</td>
+    <td style="padding:6px 14px; border-bottom:1px solid #eee; text-align:center;"><b>23.73</b></td>
+    <td style="padding:6px 14px; border-bottom:1px solid #eee; text-align:center;"><b>0.620</b></td>
+    <td style="padding:6px 14px; border-bottom:1px solid #eee; text-align:center;"><b>0.122</b></td>
+  </tr>
+  <tr>
+    <td style="padding:6px 14px; border-bottom:1px solid #eee;">Ours</td>
+    <td style="padding:6px 14px; border-bottom:1px solid #eee; color:#666;">RoMaV2 mv tokens, from scratch</td>
+    <td style="padding:6px 14px; border-bottom:1px solid #eee; text-align:center;">21.41</td>
+    <td style="padding:6px 14px; border-bottom:1px solid #eee; text-align:center;">0.531</td>
+    <td style="padding:6px 14px; border-bottom:1px solid #eee; text-align:center;">0.198</td>
+  </tr>
+</table>
+
+<p style="font-family:Arial,Helvetica,sans-serif; font-size:13px; color:#666; max-width:660px; line-height:1.5; margin:10px 0 0;">
+  Adding the matching objective on top of the frozen descriptors costs only
+  0.66&nbsp;dB (23.73 &rarr; 23.06). The deep jointly-trained encoder decodes
+  ~1.7&nbsp;dB lower, largely an optimization handicap &mdash; its decoder chases a
+  still-moving encoder, while the frozen-descriptor decoders fit a static target.
+  On the frozen-token probe axis the two are at content parity (19.06 vs 18.95&nbsp;dB).
+</p>

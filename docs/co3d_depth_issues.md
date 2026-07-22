@@ -1,8 +1,8 @@
 # CO3D depth-map issues (R2 warp supervision)
 
 Documented 2026-07-14 while building R2's dense-warp GT pipeline
-(`src/co3d_geom.py`, validated by `experiments/r2_warp_check.py`).
-Figures: `experiments/r2_depth_report_figs.py` →
+(`src/co3d_geom.py`, validated by `experiments/visualizations/r2_warp_check.py`).
+Figures: `experiments/visualizations/r2_depth_report_figs.py` →
 `results/r2_depth_report/`; numbers below from its `stats.json`
 (120-frame random sample of hydrant train frames + the 3-sequence
 near/far validation pairs).
