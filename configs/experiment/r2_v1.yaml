@@ -1,0 +1,12 @@
+# @package _global_
+# R2 v1: the v0 pilot scaled up — 4 categories (14236 filtered pairs),
+# 12000 steps at effective batch 16, and the joint arm adds the train-time
+# GAN with delayed starts (disc from 50%, adversarial from 62.5%).
+run: r2_v1
+split: r3-4cat
+optim:
+  steps: 12000
+  batch: 4
+  accum: 4
+gan:
+  arms: [joint]

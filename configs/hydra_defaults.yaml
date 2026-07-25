@@ -1,0 +1,17 @@
+# @package _global_
+# Shared Hydra behaviour for every entry point.
+#
+# chdir stays false: the whole repo addresses results/, caches and figures
+# through src/paths.py, and the resume convention is
+# results/<run>/<arm>/ckpt.pt — a per-job working directory would break both.
+# Hydra's own artifacts (the composed config snapshot and its log) go to
+# outputs/, which is gitignored; the run's real provenance is the run.json
+# written next to the results.
+hydra:
+  job:
+    chdir: false
+  run:
+    dir: outputs/${hydra.job.name}/${now:%Y-%m-%d_%H-%M-%S}
+  sweep:
+    dir: outputs/multirun/${now:%Y-%m-%d_%H-%M-%S}
+    subdir: ${hydra.job.num}

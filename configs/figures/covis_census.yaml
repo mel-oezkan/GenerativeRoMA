@@ -1,0 +1,15 @@
+# @package _global_
+# fig6 for the depth report: pair-covisibility census + filter funnel.
+defaults:
+  - /hydra_defaults
+  - _self_
+
+split: hydrant-full
+out_dir: r2_depth_report   # subdir of results/
+out_name: fig6_covis_census.png
+clip: 196          # histogram clip (tokens on the /16 grid)
+bin_width: 4
+
+data:
+  vq_min: 0.5
+  covis_floor: 8   # the floor r2 training applies; drawn as a marker

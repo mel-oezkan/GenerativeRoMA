@@ -1,0 +1,22 @@
+# Per-category matching eval of a trained R2/R3 checkpoint (docs/R3.md).
+#
+# arm=pretrained          stock romav2.pt through the same coarse-only
+#                         pipeline — the like-for-like zero-shot baseline
+# arm=pretrained-refined  ... plus the released ConvRefiner stack, i.e. the
+#                         full published system (headroom the refiners buy)
+defaults:
+  - hydra_defaults
+  - _self_
+
+run: r3_ft
+arm: ???          # match | joint | pretrained | pretrained-refined
+step: 6000
+split: r3-4cat    # r3-4cat (in-domain) | co3d-unseen (category transfer)
+size: 320
+device: cuda
+# output filename suffix, e.g. the eval split name:
+# results/<run>/<arm>/metrics_per_cat[_<tag>].json
+tag: null
+
+model:
+  desc_only: false   # r2_v1_desc arms: linear DescProj in place of mv_vit

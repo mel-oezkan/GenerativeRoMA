@@ -1,0 +1,23 @@
+# Out-of-domain matching eval: two-view pose AUC on MegaDepth-1500 /
+# ScanNet-1500 for any R2/R3 checkpoint (the "does it transfer" axis).
+#
+# Absolute AUC is expected to be poor — the arms are trained only on
+# object-centric CO3D turntables at 320 px with no refiners. The question is
+# whether the relative ordering survives the regime shift.
+defaults:
+  - hydra_defaults
+  - _self_
+
+run: r2_v1
+arm: ???           # match | joint | pretrained
+step: 12000
+benchmark: mega1500   # mega1500 | scannet1500
+device: cuda
+
+model:
+  # r2_v1_desc arms: linear DescProj in place of mv_vit
+  desc_only: false
+  # keep the released ConvRefiners (pretrained only); no arm of ours has them
+  refiners: false
+
+limit: null        # smoke test: first N pairs per mega1500 scene

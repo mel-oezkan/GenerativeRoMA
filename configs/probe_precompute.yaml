@@ -1,0 +1,22 @@
+# R2/R3 post-hoc probe, step 1: cache the mv tokens of a trained matcher for
+# the R1 probe pairs (unfiltered, so PSNR stays comparable to the stock
+# RoMaV2 probe). Step 2 is r1_recon_probe.py with cache_dir/out_dir pointing
+# at the output of this pass.
+defaults:
+  - hydra_defaults
+  - _self_
+
+run: r2_v0        # results/<run>/<arm>/ckpt.pt to extract from
+arm: null         # match | joint  (not needed with fill_desc=true)
+step: 6000        # expected final step of the checkpoint
+split: hydrant-full
+size: 320
+device: cuda
+shard: null
+cache_name: r2_probe_320   # subdir under feats.root
+cache_dir: null            # desc cache to read; null -> paths.yaml feats.desc
+log_every: 100
+
+# only compute the frame descs missing from the desc cache, then exit (run
+# once before the arms, so two processes cannot race on the same file)
+fill_desc: false

@@ -1,0 +1,11 @@
+# @package _global_
+# PCA->RGB of the mv_vit token grids at every stage of the matcher ViT.
+defaults:
+  - /hydra_defaults
+  - _self_
+
+split: 3cat
+size: 320
+device: cuda
+n_pairs: 4       # rows of the stages figure
+pair_idx: 0      # eval index for the two-view figure

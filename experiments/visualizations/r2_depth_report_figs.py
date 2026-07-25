@@ -17,16 +17,12 @@ import json
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 
-import matplotlib
-
-matplotlib.use("Agg")
-import matplotlib.pyplot as plt
-import numpy as np
-import torch
-import torch.nn.functional as F
-from PIL import Image
+import numpy as np  # noqa: E402
+import torch  # noqa: E402
+import torch.nn.functional as F  # noqa: E402
+from PIL import Image  # noqa: E402
 
 from src.co3d_geom import (
     CO3D_ROOT,
@@ -36,11 +32,14 @@ from src.co3d_geom import (
     meta_for,
 )
 from src.data import list_sequences
+from src.paths import RESULTS_DIR
 from src.romav2_utils import img_to_tensor01
+from src.viz.style import GRID_SOFT, INK, INK2, SLOTS, pyplot
 
+plt = pyplot(report_style=False)
 SIZE = 320
-OUT = Path(__file__).resolve().parent.parent / "results/r2_depth_report"
-NEAR_C, FAR_C = "#2a78d6", "#eb6834"
+OUT = RESULTS_DIR / "r2_depth_report"
+NEAR_C, FAR_C = SLOTS[0], "#eb6834"
 STATS = {}
 
 
@@ -201,14 +200,14 @@ def fig4_threshold_sweep(index, pairs):
                     label=f"{kind} pairs")
             ax.annotate(f"{kind}", (ths[-1], curves[kind][metric][-1]),
                         textcoords="offset points", xytext=(8, -3),
-                        fontsize=9, color="#0b0b0b")
-        ax.axvline(0.01, color="#52514e", lw=1, ls=":")
+                        fontsize=9, color=INK)
+        ax.axvline(0.01, color=INK2, lw=1, ls=":")
         ax.set_xscale("log")
         ax.set_xticks(ths)
         ax.set_xticklabels([str(t) for t in ths], fontsize=8)
         ax.set_xlabel("relative depth-consistency threshold", fontsize=9)
         ax.set_ylabel(ylab, fontsize=9)
-        ax.grid(True, color="#e6e5e0", lw=0.6)
+        ax.grid(True, color=GRID_SOFT, lw=0.6)
         ax.set_axisbelow(True)
         for s in ["top", "right"]:
             ax.spines[s].set_visible(False)

@@ -256,6 +256,10 @@ def estimate_pose_cv2_ransac(
 
 
 def compute_relative_pose(R1, t1, R2, t2):
-    rots = R2 @ (R1.mT)
+    # Vendored-copy deviation: the benchmarks call this with numpy arrays,
+    # and ndarray.mT only exists in numpy >= 2.0 (this env is pinned at
+    # 1.26.4 and shared with a sister project). swapaxes is equivalent for
+    # both numpy and torch, on stacked or single matrices alike.
+    rots = R2 @ R1.swapaxes(-1, -2)
     trans = -rots @ t1 + t2
     return rots, trans

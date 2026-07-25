@@ -1,0 +1,21 @@
+# Held-out recon eval of a run's *train-time* decoder (docs/R2.md): PSNR /
+# SSIM / LPIPS(alex) on the eval pairs, both views. The post-hoc probe
+# (r1_probe) measures the same features with a standardized fresh decoder;
+# this one measures the decoder that was actually co-trained.
+defaults:
+  - hydra_defaults
+  - _self_
+
+run: ???
+arm: ???
+step: 12000
+split: r3-4cat
+size: 320
+device: cuda
+
+model:
+  desc_only: false   # r2_v1_desc arms
+  skip_head: false   # desc-recon arm (proj -> decoder only)
+
+data:
+  vq_min: 0.5
