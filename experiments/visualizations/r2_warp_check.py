@@ -16,23 +16,22 @@ checked pairs look like the training distribution (near + far).
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 
-import matplotlib
+import numpy as np  # noqa: E402
+import torch  # noqa: E402
+from PIL import Image  # noqa: E402
+from plyfile import PlyData  # noqa: E402
 
-matplotlib.use("Agg")
-import matplotlib.pyplot as plt
-import numpy as np
-import torch
-from PIL import Image
-from plyfile import PlyData
+from src.co3d_geom import CO3D_ROOT, compute_warp, load_frame_index, meta_for  # noqa: E402
+from src.data import list_sequences  # noqa: E402
+from src.paths import RESULTS_DIR  # noqa: E402
+from src.romav2_utils import img_to_tensor01  # noqa: E402
+from src.viz.style import pyplot  # noqa: E402
 
-from src.co3d_geom import CO3D_ROOT, compute_warp, load_frame_index, meta_for
-from src.data import list_sequences
-from src.romav2_utils import img_to_tensor01
-
+plt = pyplot(report_style=False)
 SIZE = 320
-OUT = Path(__file__).resolve().parent.parent / "results/r2_warp_check"
+OUT = RESULTS_DIR / "r2_warp_check"
 
 
 def load_img(path):

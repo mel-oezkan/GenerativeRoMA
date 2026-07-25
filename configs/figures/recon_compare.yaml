@@ -1,0 +1,34 @@
+# @package _global_
+# Side-by-side reconstructions of the equal-budget train-time decoders.
+defaults:
+  - /hydra_defaults
+  - _self_
+
+split: r3-4cat
+size: 320
+device: cuda
+per_cat: 2          # eval frames sampled per category
+out_dir: r3         # subdir of docs/figures
+out_name: fig_recon_examples.png
+title: Train-time reconstructions at equal 12k+GAN budget — held-out r3-4cat eval frames
+
+# rows of the grid, top to bottom
+models:
+  - label: "scratch-joint 12k\n(deep encoder)"
+    run: r2_v1
+    arm: joint
+    step: 12000
+    desc_only: false
+    skip_head: false
+  - label: "desc-joint 12k\n(frozen desc)"
+    run: r2_v1_desc
+    arm: joint
+    step: 12000
+    desc_only: true
+    skip_head: false
+  - label: "desc-recon 12k\n(pure RAE)"
+    run: r2_v1_desc
+    arm: recon
+    step: 12000
+    desc_only: true
+    skip_head: true

@@ -1,0 +1,61 @@
+# R1 reconstruction probe: RAE stage-1 decoder on frozen features (docs/R1.md).
+#
+#   feature=dpt     128ch @ /4, densest head feature
+#   feature=mv      1024ch @ /16, RAE-like bottleneck
+#   feature=desc    2048ch @ /16, frozen DINOv3 control (the ceiling)
+#   feature=b3      768ch @ /16, mv_vit block-3 mid-depth tap
+#   feature=mvdesc  3072ch @ /16, [desc ‖ mv]; reports source ablations
+#
+# The same probe measures the R2/R3 checkpoints: point cache_dir at a cache
+# written by r2_probe_precompute.py and out_dir at the arm's results dir.
+defaults:
+  - hydra_defaults
+  - _self_
+
+feature: ???
+split: 3cat
+size: 320
+seed: 0
+device: cuda
+
+# condition the matcher on the anchor itself (A == B) instead of a second
+# view; results go to <feature>_selfpair/
+self_pair: false
+# split the decoder across cuda:0/cuda:1 (needed for L/XL on 11 GB GPUs);
+# disc/LPIPS stay on cuda:0
+pipeline: false
+cache_dir: null   # null -> paths.yaml feats.r1
+out_dir: null     # null -> results/<split out>/<arm>
+shard: null       # "i/n" slice of the pair list (parallel precompute)
+# fill the shared feature cache and exit (no decoder training)
+precompute_only: false
+
+decoder:
+  size: B         # RAE Table 13; paper default XL exceeds 1080 Ti memory
+  # RAE noise-augmented decoding tau (paper 4.3). RAE trains with 0.8 for
+  # diffusion robustness; the probe wants sharpness, hence 0.
+  noise_tau: 0.0
+
+optim:
+  steps: 6000
+  batch: 8        # paper 512
+  lr: 2.0e-4
+  min_lr_ratio: 0.1        # 2e-4 -> 2e-5 cosine
+  betas: [0.5, 0.9]        # paper Table 12; released configs use (0.9, 0.95)
+  # RAE phase boundaries as epoch fractions of its 16-epoch recipe, mapped
+  # onto `steps` (epoch = steps // epochs)
+  epochs: 16
+  warmup_epochs: 1
+  disc_start_epoch: 6
+  gan_start_epoch: 8
+
+loss:
+  lpips_w: 1.0    # omega_L
+  disc_w: 0.75    # omega_G
+  max_d_weight: 1.0e4
+
+ema_decay: 0.9978  # EMA weights are the headline eval, as upstream
+
+log:
+  every: 100
+  ckpt_every: 500

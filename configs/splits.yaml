@@ -1,0 +1,65 @@
+# Data splits for the whole R-line, in one registry.
+#
+# Previously duplicated: r1_recon_probe.SPLITS (sequence split + pair
+# sampling) and r2_train.SPLIT_CATEGORIES (category list only). Both read
+# this file now via src/splits.py, so a split cannot drift between the
+# probe and the matcher training that measures it.
+#
+# Fields
+#   categories          category list; null = src.data.EXTRACTED_CATEGORIES.
+#                       ORDER MATTERS: split_seqs shuffles with one shared
+#                       rng, so reordering reshuffles every existing split.
+#   n_train_seqs        train sequences per category (null = all remaining)
+#   train_pairs_per_seq sampled train pairs per sequence
+#   eval_pairs_per_seq  sampled eval pairs per sequence
+#   min_seq_vq          viewpoint_quality_score floor applied to the EVAL
+#                       sequences too (eval-only splits, where the eval
+#                       pairs are the whole measurement); null = no filter
+#   out                 results/<out>/ subdir for the R1 probe arms
+#   covis_cache         META_CACHE_DIR filename of the covisibility census
+
+defaults:
+  eval_pairs_per_seq: 10
+  min_seq_vq: null
+  n_eval_seqs: 6
+
+splits:
+  3cat:
+    categories: null
+    n_train_seqs: 12
+    train_pairs_per_seq: 40
+    out: r1_recon_probe
+
+  # Every extracted hydrant sequence (726 on disk) with fewer pairs/seq to
+  # bound precompute time and cache size. Shuffles hydrant first with the
+  # same seed as 3cat, so the hydrant eval sequences coincide.
+  hydrant-full:
+    categories: [hydrant]
+    n_train_seqs: null
+    train_pairs_per_seq: 10
+    out: r1_recon_probe_hydrant
+    # predates the split-suffixed naming; keep the legacy census filename
+    covis_cache: pair_covis_hydrant.json
+
+  # R3 fine-tune split: hydrant FIRST so the shared-rng shuffle keeps the
+  # hydrant eval sequences identical to hydrant-full (see data.split_seqs).
+  r3-4cat:
+    categories: [hydrant, bench, toybus, toytruck]
+    n_train_seqs: null
+    train_pairs_per_seq: 10
+    out: r3_recon_probe
+
+  # Eval-only category-transfer split: 17 co3d_data categories disjoint from
+  # every training category, for measuring whether the joint arm's advantage
+  # is about appearance in general or about CO3D-hydrant appearance. Never
+  # train on this. co3d_data ships one all-black placeholder sequence per
+  # category (NaN viewpoint_quality_score), and unlike the training splits
+  # the *eval* pairs must be filtered here — hence min_seq_vq.
+  co3d-unseen:
+    categories: [apple, ball, book, bowl, broccoli, cake, donut, mouse,
+                 orange, plant, remote, skateboard, suitcase, teddybear,
+                 toaster, toytrain, vase]
+    n_train_seqs: 0
+    train_pairs_per_seq: 0
+    min_seq_vq: 0.5
+    out: co3d_unseen_probe

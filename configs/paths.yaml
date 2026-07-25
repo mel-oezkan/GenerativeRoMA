@@ -1,0 +1,44 @@
+# Every filesystem root the R-line touches, in one place.
+#
+# Loaded at import time by src/paths.py (plain OmegaConf, no Hydra), so
+# library code and figure scripts see the same values as the Hydra entry
+# points. Point GENROMA_PATHS at a copy of this file to relocate the data
+# (e.g. another machine) without touching code.
+#
+# ${...} interpolations are resolved by OmegaConf; `repo` is injected by
+# src/paths.py as the repository root and `home` as $HOME.
+
+data_root: /visinf/projects_students/dlcv2025_groupZ
+
+co3d:
+  # Category lookup order: co3d_full first, so every category used up to
+  # now (hydrant/bench/toybus/toytruck) resolves exactly as it did.
+  # co3d_data supplies the long tail used by the co3d-unseen split.
+  roots:
+    - ${data_root}/co3d_full
+    - ${data_root}/co3d_data
+
+feats:
+  root: ${data_root}/romav2_feats
+  # frame index / covisibility census sidecars (src/co3d_geom, r2_pair_covis)
+  meta: ${feats.root}/r2_meta
+  # R1 per-pair feature cache (dpt/mv/desc/b3 sidecars)
+  r1: ${feats.root}/r1_320
+  # R2/R3 per-frame DINOv3 descriptor cache
+  desc: ${feats.root}/r2_desc_320
+
+# Two-view pose benchmarks (r3_bench_pose)
+bench_root: ${data_root}/romav2_data
+
+checkpoints:
+  cache: ${home}/.cache/torch/hub/checkpoints
+  # pretrained RoMaV2 (R3 init + zero-shot baseline)
+  romav2: ${checkpoints.cache}/romav2.pt
+  # frozen DINO-S/8 StyleGAN-T discriminator backbone (RAE stage-1 recipe)
+  dino_s8: ${checkpoints.cache}/dino_deitsmall8_pretrain.pth
+
+repo_paths:
+  romav2_src: ${repo}/third_party/RoMaV2/src
+  results: ${repo}/results
+  figures: ${repo}/docs/figures
+  docs: ${repo}/docs

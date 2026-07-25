@@ -1,0 +1,5 @@
+# @package _global_
+# R2 v0 pilot: from-scratch matcher on CO3D hydrants, no train-time GAN.
+# Arms: match | joint | recon.
+run: r2_v0
+split: hydrant-full

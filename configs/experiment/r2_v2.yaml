@@ -1,0 +1,13 @@
+# @package _global_
+# R2 v2: identical to r2_v1/joint except the micro-batch. Two decoder +
+# LPIPS + GAN passes per step OOM the 11 GB 1080 Ti at batch 4, so batch 2
+# x accum 8 — same effective batch 16, same optimizer trajectory.
+# Only the joint arm is trained here; the match baseline is r2_v1/match.
+run: r2_v2
+split: r3-4cat
+optim:
+  steps: 12000
+  batch: 2
+  accum: 8
+gan:
+  arms: [joint]

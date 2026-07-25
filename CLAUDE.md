@@ -46,7 +46,17 @@ Cached in `~/.cache/torch/hub/checkpoints/`:
 
 **Gotcha:** `co3d_data` contains all-black placeholder frames that silently zero out matching/reconstruction losses — filter them (see `is_blank_frame` guard in the sister project).
 
+## Code Layout (post-refactor)
+- **Configs are the recipe.** `configs/` holds `paths.yaml` (every filesystem root — nothing else hardcodes a path), `splits.yaml` (sequence splits + pair sampling), one `experiment/<run>.yaml` per training run, plus the probe/eval/precompute/figure configs. Change a hyperparameter there, never in code or in a driver.
+- **`src/` is the implementation**: `src/r2/` (dataset+filters, model, losses, metrics, train loop, precompute, census, benchmarks), `src/r1/probe.py`, `src/viz/` (palette, log parsing, results IO), `src/paths.py`, `src/splits.py`, `src/config.py` (Hydra glue).
+- **`experiments/*.py` are thin entry points** (~30 lines each): compose config → call into `src/`. They use Hydra overrides, not argparse flags:
+  ```
+  python experiments/r2_train.py experiment=r2_v1 arm=joint optim.steps=30
+  ```
+  `hydra.job.chdir` is off and Hydra's own artifacts go to `outputs/`; results still land in `results/<run>/<arm>/`, with the resolved config in `run.json`.
+- **`scripts/*_driver.sh` orchestrate only** (GPU assignment, ordering, waiting), sharing `scripts/lib.sh` (`train`, `smoke`, `probe`, `gpu`, `done_if`, `wait_for_pattern`).
+
 ## Suggested Workflow
 1. Phase 1: DINOv2 encoder (frozen, then fine-tuned) + lightweight decoder, reconstruction loss (L1/L2 + LPIPS), train on `imagenet-256`, quick-eval FID on `imagenet-256-10k`.
 2. Phase 2: RoMA V2 trained from scratch with matching + reconstruction objectives on CO3D/MVImgNet multi-view data; compare against the pretrained `romav2.pt`.
-3. Track experiments with WandB; use Hydra configs (`config/*.yaml`, one per experiment) as in the sister project.
+3. Track experiments with WandB; Hydra configs live in `configs/` (see above), one per experiment.

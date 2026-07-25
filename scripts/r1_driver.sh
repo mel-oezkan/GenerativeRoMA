@@ -1,32 +1,30 @@
 #!/usr/bin/env bash
-# R1 recon probe: precompute the shared feature cache (GPU0), then train one
-# decoder per feature arm, alternating GPUs. Arms with a metrics.json are
-# skipped, so the script is safe to re-run after adding arms (mvdesc added
-# 2026-07-12; it reuses the cached desc+mv, no new precompute).
-# Resumable: re-run after interruption (cache skips done pairs, ckpt resumes).
+# R1 recon probe, 3cat split: precompute the shared feature cache (GPU0),
+# then train one decoder per feature arm, alternating GPUs. Arms with a
+# metrics.json are skipped, so the script is safe to re-run after adding
+# arms. Resumable: re-run after interruption (cache skips done pairs, ckpt
+# resumes).
+#
+# Recipe: configs/r1_probe.yaml.
 set -euo pipefail
+source "$(dirname "$0")/lib.sh"
 
-cd /visinf/home/lab_mozkan/GenerativeRoMA
-PY=~/miniconda3/envs/cv/bin/python
+SPLIT=${SPLIT:-3cat}
 LOGDIR=results/r1_recon_probe
 mkdir -p "$LOGDIR"
 
-CUDA_VISIBLE_DEVICES=0 $PY experiments/r1_recon_probe.py --precompute-only \
+log "precompute (GPU0)"
+gpu 0 experiments/r1_recon_probe.py precompute_only=true "split=$SPLIT" \
     2>&1 | tee -a "$LOGDIR/precompute.log"
 
 # probe v3 (RAE recipe, ViT-B decoder + DINO disc + VGG LPIPS) needs a full
 # 1080 Ti per arm -> two waves of one-arm-per-GPU instead of 2 per GPU
 for wave in "dpt mv" "desc mvdesc"; do
-    gpu=0
+    dev=0
     for feat in $wave; do
-        if [ -f "$LOGDIR/$feat/metrics.json" ]; then
-            echo "$feat already done, skipping"
-            continue
-        fi
-        CUDA_VISIBLE_DEVICES=$gpu $PY experiments/r1_recon_probe.py --feature "$feat" \
-            >> "$LOGDIR/train_$feat.log" 2>&1 &
-        gpu=$(( (gpu + 1) % 2 ))
+        probe "$feat" "$SPLIT" "$dev" "$LOGDIR/$feat" &
+        dev=$(( (dev + 1) % 2 ))
     done
     wait
 done
-echo "r1 done"
+log "r1 done"

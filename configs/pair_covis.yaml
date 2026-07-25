@@ -1,0 +1,13 @@
+# Pair covisibility census at /16 for the R2/R3 train pairs (CPU, parallel).
+defaults:
+  - hydra_defaults
+  - _self_
+
+split: hydrant-full
+size: 320
+workers: 7
+chunk: 16          # imap_unordered chunksize
+save_every: 500    # checkpoint the census json every N pairs
+
+data:
+  vq_min: 0.5

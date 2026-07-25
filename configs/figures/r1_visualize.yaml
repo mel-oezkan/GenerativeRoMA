@@ -1,0 +1,15 @@
+# @package _global_
+# R1 probe visualizations across arms (recons + decoder-feature PCA).
+defaults:
+  - /hydra_defaults
+  - _self_
+
+split: 3cat
+size: 320
+cache_dir: null      # null -> paths.yaml feats.r1
+decoder_size: B
+arms: [desc, mvdesc, b3, mv, dpt]
+n_cols: 6
+feature_idx: 0       # eval index for the decoder-feature figure
+# tap after these blocks of the 12-block ViT-B decoder body
+taps: [0, 3, 7, 11]

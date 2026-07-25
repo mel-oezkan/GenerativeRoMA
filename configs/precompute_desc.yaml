@@ -1,0 +1,18 @@
+# Per-frame DINOv3 descriptor cache for the R2/R3 train/eval pairs.
+# The filter pipeline (test-frame, pose quality, covis floor) is applied
+# first, so only frames that can appear in training are extracted — run the
+# covisibility census (pair_covis) before this.
+defaults:
+  - hydra_defaults
+  - _self_
+
+split: hydrant-full
+size: 320
+device: cuda
+shard: null        # "i/n" slice for parallel GPUs
+cache_dir: null    # null -> paths.yaml feats.desc
+log_every: 200
+
+data:
+  vq_min: 0.5
+  covis_floor: 8

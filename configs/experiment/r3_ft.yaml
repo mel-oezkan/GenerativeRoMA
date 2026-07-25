@@ -1,0 +1,10 @@
+# @package _global_
+# R3: fine-tune the PRETRAINED RoMaV2 matcher on 4 CO3D categories with the
+# R2 joint recipe. Matcher LR is 10x lower than the decoder's, which stays
+# random-init at the base LR.
+run: r3_ft
+split: r3-4cat
+model:
+  init: pretrained
+optim:
+  matcher_lr: 2.0e-5

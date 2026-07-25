@@ -1,0 +1,15 @@
+# @package _global_
+# Frozen-DINOv3 control for R2 v1: same data, losses, steps and GAN recipe,
+# but the mv_vit is replaced by a linear 2048->1024 projection — only the
+# projection, the DPT head and (joint) the decoder train. The gap to the
+# r2_v1 arms is the contribution of the deep trained encoder.
+run: r2_v1_desc
+split: r3-4cat
+model:
+  desc_baseline: true
+optim:
+  steps: 12000
+  batch: 4
+  accum: 4
+gan:
+  arms: [joint]

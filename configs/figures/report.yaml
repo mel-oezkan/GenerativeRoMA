@@ -1,0 +1,20 @@
+# @package _global_
+# Report figures for docs/R3.md (and the R2 v1 section of docs/R2.md).
+#
+# Every figure reads metrics JSONs under results/ and is skipped when its
+# inputs are missing, so this can be re-run as results land.
+defaults:
+  - /hydra_defaults
+  - _self_
+
+out_dir: r3        # subdir of docs/figures
+# subset to draw: any of matching, cats, probe, tradeoff, reconq, scaling,
+#                 generalization
+figures: [all]
+
+# R1 reference points (docs/R1.md): hydrant-full RAE probe, EMA decoder.
+# These are measurements, not settings — they live here so a figure never
+# disagrees with the number quoted in the doc.
+reference:
+  pretrained_mv: {psnr: 13.29, ssim: 0.141, lpips: 0.631}
+  desc_ceiling: {psnr: 18.95, ssim: 0.292, lpips: 0.282}

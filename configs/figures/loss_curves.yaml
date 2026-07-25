@@ -1,0 +1,52 @@
+# @package _global_
+# Which run directories the loss-curve figure script covers.
+#
+# kind: probe  -> R1 RAE-probe log format (l1/lpips/gan/lam/d), GAN phase
+#                 markers on by default (the probe runs the GAN from a fixed
+#                 fraction of training)
+# kind: train  -> R2/R3 matcher log format (attn/warp/conf + recon terms)
+#
+# Step counts and GAN phase boundaries are read per arm from its run.json,
+# so a figure always annotates what that run actually did; the values below
+# are only the fallback for runs predating run.json.
+defaults:
+  - /hydra_defaults
+  - _self_
+
+runs:
+  - dir: r1_recon_probe
+    kind: probe
+    title: R1 probe v3 (RAE recipe) — 3cat split
+  - dir: r1_recon_probe_hydrant
+    kind: probe
+    title: R1 probe v3 (RAE recipe) — hydrant-full split
+  - dir: r1_recon_probe_conv
+    kind: probe
+    gan_phases: false
+    title: R1 probe v1 (ConvDecoder, no GAN) — 3cat split
+  - dir: r2_probe
+    kind: probe
+    title: R2 recon probe (post-hoc RAE recipe) — hydrant-full split
+  - dir: r2_v0
+    kind: train
+    title: R2 v0 (from-scratch matcher) — hydrant-full split
+  - dir: r3_ft
+    kind: train
+    title: R3 (pretrained RoMaV2 fine-tune, matcher LR 2e-5) — r3-4cat split
+  - dir: r2_v1
+    kind: train
+    title: R2 v1 (from-scratch, effective batch 16, delayed GAN) — r3-4cat split
+  - dir: r2_v2
+    kind: train
+    title: R2 v2 (two-view recon, delayed GAN) — r3-4cat split
+  - dir: r2_v1_desc
+    kind: train
+    title: R2 v1 desc control (frozen DINOv3 + linear glue) — r3-4cat split
+
+fallback:
+  steps: 6000
+  disc_start: 2250   # 6/16 of the RAE recipe
+  gan_start: 3000    # 8/16
+
+# also write <run>/<arm>/loss_curves.png next to each arm's results
+per_arm: true

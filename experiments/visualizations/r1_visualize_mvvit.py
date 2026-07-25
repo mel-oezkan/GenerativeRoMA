@@ -21,26 +21,28 @@ reconstruction is gone by that depth.
 
 Needs a GPU (loads full RoMaV2); features are computed fresh, the R1
 cache is not touched.
+
+    python experiments/visualizations/r1_visualize_mvvit.py split=hydrant-full
+
+Configs: configs/figures/r1_mvvit.yaml.
 """
 
-import argparse
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 
-import matplotlib
+import torch  # noqa: E402
+from PIL import Image  # noqa: E402
 
-matplotlib.use("Agg")
-import matplotlib.pyplot as plt
-import torch
-from PIL import Image
+from experiments.visualizations.r1_visualize import pca_rgb  # noqa: E402
+from src.config import hydra_main  # noqa: E402
+from src.paths import RESULTS_DIR  # noqa: E402
+from src.romav2_utils import img_to_tensor01, load_romav2_frozen  # noqa: E402
+from src.splits import get_splits, split_spec  # noqa: E402
+from src.viz.style import pyplot  # noqa: E402
 
-from experiments.r1_recon_probe import RESULTS_DIR, SIZE, SPLITS, get_splits
-from experiments.r1_visualize import pca_rgb
-from src.romav2_utils import img_to_tensor01, load_romav2_frozen
-
-DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+plt = pyplot(report_style=False)
 
 
 class MvVitTap:
@@ -99,12 +101,12 @@ def show(ax, img, ylabel=None, title=None):
 
 
 @torch.no_grad()
-def run_pair(model, pair):
-    img_A = img_to_tensor01(Image.open(pair["anchor"]), SIZE).to(DEVICE)
-    img_B = img_to_tensor01(Image.open(pair["other"]), SIZE).to(DEVICE)
+def run_pair(model, pair, size=320, device="cuda"):
+    img_A = img_to_tensor01(Image.open(pair["anchor"]), size).to(device)
+    img_B = img_to_tensor01(Image.open(pair["other"]), size).to(device)
     f_A = model.f(img_A)
     f_B = model.f(img_B)
-    tap = MvVitTap(model.matcher.mv_vit, (SIZE // 16, SIZE // 16))
+    tap = MvVitTap(model.matcher.mv_vit, (size // 16, size // 16))
     model.matcher(f_A, f_B, img_A=img_A, img_B=img_B, bidirectional=False)
     tap.close()
     # [h, w, 2048] each; index 0 = A, 1 = B (matches tap per-view layout)
@@ -112,14 +114,14 @@ def run_pair(model, pair):
     return img_A[0].cpu(), img_B[0].cpu(), descs, tap.acts
 
 
-def stages_figure(model, pairs, stages, out_path):
+def stages_figure(model, pairs, stages, out_path, size=320, device="cuda"):
     ncols = 3 + len(stages)
     fig, axes = plt.subplots(
         len(pairs), ncols, figsize=(1.55 * ncols, 1.55 * len(pairs))
     )
     axes = axes.reshape(len(pairs), ncols)
     for r, pair in enumerate(pairs):
-        img_A, img_B, descs, acts = run_pair(model, pair)
+        img_A, img_B, descs, acts = run_pair(model, pair, size, device)
         show(axes[r, 0], img_A.permute(1, 2, 0), ylabel=pair["key"].split("_")[0])
         show(axes[r, 1], img_B.permute(1, 2, 0))
         show(axes[r, 2], pca_rgb(descs[0].numpy()))
@@ -134,8 +136,8 @@ def stages_figure(model, pairs, stages, out_path):
     return out_path
 
 
-def views_figure(model, pair, stages, out_path):
-    img_A, img_B, descs, acts = run_pair(model, pair)
+def views_figure(model, pair, stages, out_path, size=320, device="cuda"):
+    img_A, img_B, descs, acts = run_pair(model, pair, size, device)
     ncols = 2 + len(stages)
     fig, axes = plt.subplots(2, ncols, figsize=(1.55 * ncols, 1.55 * 2))
     for v, (img, name) in enumerate([(img_A, "view A"), (img_B, "view B")]):
@@ -152,31 +154,22 @@ def views_figure(model, pair, stages, out_path):
     return out_path
 
 
-def main():
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--split", default="3cat", choices=list(SPLITS))
-    ap.add_argument("--n-pairs", type=int, default=4)
-    ap.add_argument(
-        "--pair-idx", type=int, default=0, help="eval index for the two-view figure"
-    )
-    args = ap.parse_args()
-
-    out_root = RESULTS_DIR / SPLITS[args.split]["out"]
+@hydra_main("figures/r1_mvvit")
+def main(cfg):
+    out_root = RESULTS_DIR / split_spec(cfg.split)["out"]
     out_root.mkdir(parents=True, exist_ok=True)
-    _, eval_pairs = get_splits(args.split)
-    step = max(1, len(eval_pairs) // args.n_pairs)
-    pairs = [eval_pairs[i * step] for i in range(args.n_pairs)]
+    _, eval_pairs = get_splits(cfg.split)
+    step = max(1, len(eval_pairs) // cfg.n_pairs)
+    pairs = [eval_pairs[i * step] for i in range(cfg.n_pairs)]
 
     # load model and stages from matcher mv_vit
-    model = load_romav2_frozen().to(DEVICE)
+    model = load_romav2_frozen().to(cfg.device)
     stages = stage_names(len(model.matcher.mv_vit.blocks))
 
-    p1 = stages_figure(model, pairs, stages, out_root / "viz_mvvit_stages.png")
-    p2 = views_figure(
-        model, eval_pairs[args.pair_idx], stages, out_root / "viz_mvvit_views.png"
-    )
-    print(p1)
-    print(p2)
+    print(stages_figure(model, pairs, stages, out_root / "viz_mvvit_stages.png",
+                        cfg.size, cfg.device))
+    print(views_figure(model, eval_pairs[cfg.pair_idx], stages,
+                       out_root / "viz_mvvit_views.png", cfg.size, cfg.device))
 
 
 if __name__ == "__main__":
