@@ -86,6 +86,49 @@ parity) and a matching-trained linear loses only 0.7 dB — **the
 appearance collapse requires encoder depth; appearance itself is cheap
 at every depth.**
 
+**Micro-batch replication** (`results/r2_v2`, joint only): the same v1
+joint recipe at batch 2 × accum 8 instead of 4 × 4 (same effective batch
+16, fits the 11 GB 1080 Ti with two decoder + LPIPS + GAN passes per
+step) lands at EPE 7.83 / PCK5 0.677 and 21.74 dB train-time recon — i.e.
+within run-to-run noise of v1 joint (7.02 / 0.686 / 21.41), so the v1
+conclusions are not an artifact of the accumulation schedule.
+
+### R4 — does any of it generalize? (in progress)
+
+Two transfer tiers, `scripts/r4_generalize_driver.sh`. **Tier 1 —
+category transfer** (finished 2026-07-25): the `co3d-unseen` split,
+17 CO3D categories disjoint from every training category, 413 pairs,
+same protocol as the in-domain eval:
+
+| model | EPE (unseen) | PCK5 | coarse EPE | in-domain EPE |
+|---|---|---|---|---|
+| pretrained (zero-shot) | 7.76 | 0.731 | 10.59 | 4.46 |
+| pretrained + refiners | 6.74 | 0.789 | 10.61 | — |
+| r3_ft match-ft | **4.47** | **0.803** | 8.33 | 2.64 |
+| r3_ft joint-ft | 4.66 | 0.794 | 8.30 | 2.74 |
+| r2_v1 scratch-match | 18.56 | 0.529 | 21.29 | 7.66 |
+| r2_v1 scratch-joint | 17.95 | 0.530 | 20.44 | 7.02 |
+| r2_v2 scratch-joint | 17.59 | 0.522 | 20.79 | 7.83 |
+| desc-match (frozen DINOv3) | 15.81 | 0.517 | 33.17 | 10.34 |
+| desc-joint (frozen DINOv3) | 15.85 | 0.515 | 33.12 | 10.50 |
+
+- **Fine-tuning transfers**: 4-category fine-tuning *beats the
+  pretrained checkpoint on 17 categories it never saw* (4.47 vs 7.76
+  EPE), so the gains are not category memorization — and the recon
+  objective still costs ~nothing out of domain (Δ EPE 0.19).
+- **From-scratch does not**: the 12k-step scratch models collapse to
+  ~18 EPE outside their four categories; at this data scale they learn
+  category-specific geometry, and the frozen-DINOv3 baselines'
+  *better* out-of-domain EPE (15.8, with catastrophic 33 px coarse
+  matching) is DINOv3's generalization, not the trained encoder's.
+- The joint ≥ match ordering from v1 survives the domain shift for the
+  scratch arms (17.95 vs 18.56).
+
+**Tier 2 — regime transfer** (MegaDepth-1500 two-view pose AUC, turbo @
+320 px, no refiners) is still running; only the r2_v1/match anchor has
+landed so far (AUC@5/10/20 = 0.003 / 0.012 / 0.061 — object-centric
+CO3D training does not transfer to scene-level pose estimation).
+
 ## Running things
 
 Every entry point is a thin Hydra script: the recipe lives in `configs/`,
