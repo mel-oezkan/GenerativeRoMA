@@ -13,7 +13,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 import numpy as np  # noqa: E402
 
 from src.viz.io import fig_dir  # noqa: E402
-from src.viz.style import ALERT, INK, INK2, MUTED, SLOTS, pyplot  # noqa: E402
+from src.viz.style import ALERT, INK, INK2, MUTED, SLOTS, SURFACE, pyplot  # noqa: E402
 
 plt = pyplot()
 OUT = fig_dir("r3") / "fig_epe_pck_example.png"
