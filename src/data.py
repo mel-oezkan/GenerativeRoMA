@@ -6,9 +6,9 @@ sequence apart ~ opposite views.
 """
 
 import random
-from pathlib import Path
 
-CO3D_ROOT = Path("/visinf/projects_students/dlcv2025_groupZ/co3d_full")
+from src.paths import CO3D_ROOT, root_for  # noqa: F401  (CO3D_ROOT re-exported)
+
 # Categories that are already extracted (not zipped).
 EXTRACTED_CATEGORIES = ["hydrant", "car", "toybus"]
 # Additional categories extracted for H1 (~24 sequences each, see docs/H1.md);
@@ -18,7 +18,7 @@ H1_CATEGORIES = EXTRACTED_CATEGORIES + H1_NEW_CATEGORIES
 
 
 def list_sequences(category, min_frames=60):
-    cat_dir = CO3D_ROOT / category
+    cat_dir = root_for(category) / category  # categories span two roots
     seqs = []
     for seq_dir in sorted(cat_dir.iterdir()):
         img_dir = seq_dir / "images"

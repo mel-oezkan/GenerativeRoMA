@@ -30,8 +30,18 @@ import numpy as np
 import torch
 from PIL import Image
 
-CO3D_ROOT = Path("/visinf/projects_students/dlcv2025_groupZ/co3d_full")
-META_CACHE_DIR = Path("/visinf/projects_students/dlcv2025_groupZ/romav2_feats/r2_meta")
+# Categories live in one of two downloads (configs/paths.yaml). co3d_full is
+# searched first, so every category used before this (hydrant/bench/toybus/
+# toytruck) resolves exactly as it did; co3d_data supplies the long tail (~70
+# categories, ~3 sequences each) used by the held-out generalization split.
+# Note co3d_data ships one all-black placeholder sequence per category —
+# filter on viewpoint_quality_score (they carry NaN), see configs/splits.yaml.
+from src.paths import (  # noqa: E402  (re-exported for callers)
+    CO3D_ROOT,
+    CO3D_ROOTS,
+    META_CACHE_DIR,
+    root_for,
+)
 
 # diag matrix from line 8
 _FLIP = np.diag([-1.0, -1.0, 1.0]).astype(np.float32)
@@ -71,7 +81,7 @@ def load_frame_index(category="hydrant"):
     cache = META_CACHE_DIR / f"{category}_frames.pt"
     if cache.exists():
         return torch.load(cache, weights_only=False)
-    with gzip.open(CO3D_ROOT / category / "frame_annotations.jgz", "rt") as f:
+    with gzip.open(root_for(category) / category / "frame_annotations.jgz", "rt") as f:
         data = json.load(f)
     index = {
         (e["sequence_name"], Path(e["image"]["path"]).name): _frame_meta(e)
@@ -100,7 +110,7 @@ def load_seq_quality(category="hydrant"):
     score; NaN when absent). Bad poses make the warp GT *systematically*
     wrong — the depth-consistency check reuses the same poses, so it cannot
     catch them (docs/co3d_depth_issues.md); filter sequences instead."""
-    with gzip.open(CO3D_ROOT / category / "sequence_annotations.jgz", "rt") as f:
+    with gzip.open(root_for(category) / category / "sequence_annotations.jgz", "rt") as f:
         data = json.load(f)
     return {
         s["sequence_name"]: (
@@ -142,13 +152,15 @@ def load_depth_320(meta, size):
     Nearest resize (interpolating depth across silhouettes creates fake
     geometry), then the same center crop as the image transform.
     """
-    with Image.open(CO3D_ROOT / meta["depth_path"]) as dpil:
+    # depth_path is "<category>/<seq>/depths/..." relative to its own root
+    root = root_for(Path(meta["depth_path"]).parts[0])
+    with Image.open(root / meta["depth_path"]) as dpil:
         d = (
             np.frombuffer(np.array(dpil, np.uint16).tobytes(), np.float16)
             .astype(np.float32)
             .reshape(dpil.size[1], dpil.size[0])
         ) * meta["depth_scale"]
-    with Image.open(CO3D_ROOT / meta["depth_mask_path"]) as mpil:
+    with Image.open(root / meta["depth_mask_path"]) as mpil:
         m = np.array(mpil)
     if m.ndim == 3:
         m = m[..., 0]
